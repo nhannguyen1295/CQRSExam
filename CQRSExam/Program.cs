@@ -1,5 +1,7 @@
 using System.Reflection;
 using CQRSExam.Context;
+using CQRSExam.Repositories;
+using CQRSExam.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,6 +20,8 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
 builder.Services.AddScoped<IApplicationContext, ApplicationContext>();
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped(typeof(IUnitOfWork<>), typeof(UnitOfWork<>));
 
 var app = builder.Build();
 

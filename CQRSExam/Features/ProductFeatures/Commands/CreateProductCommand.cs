@@ -1,5 +1,6 @@
 ﻿using CQRSExam.Context;
 using CQRSExam.Models;
+using CQRSExam.UnitOfWork;
 using MediatR;
 
 namespace CQRSExam.Features.ProductFeatures.Commands;
@@ -14,11 +15,12 @@ public class CreateProductCommand : IRequest<int>
     
     public class CreateProductCommandHandler : IRequestHandler<CreateProductCommand, int>
     {
-        private readonly IApplicationContext _context;
-        public CreateProductCommandHandler(IApplicationContext context)
+        private readonly IUnitOfWork<Product> _unitOfWork;
+        public CreateProductCommandHandler(IUnitOfWork<Product> unitOfWork)
         {
-            _context = context;
+            _unitOfWork = unitOfWork;
         }
+
         public async Task<int> Handle(CreateProductCommand command, CancellationToken cancellationToken)
         {
             var product = new Product
@@ -29,8 +31,9 @@ public class CreateProductCommand : IRequest<int>
                 Rate = command.Rate,
                 Description = command.Description
             };
-            _context.Products.Add(product);
-            await _context.SaveChanges();
+            _unitOfWork.Repository.Insert(product);
+            await _unitOfWork.SaveAsync();
+            _unitOfWork.Dispose();
             return product.Id;
         }
     }

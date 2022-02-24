@@ -1,5 +1,6 @@
 ﻿using CQRSExam.Context;
 using CQRSExam.Models;
+using CQRSExam.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,17 +8,17 @@ namespace CQRSExam.Features.ProductFeatures.Queries;
 
 public class GetProductByIdQuery:IRequest<Product>
 {
-    public int Id { get; set; }
+    public int Id { get; init; }
 
     public class GetProductByIdQueryHandler : IRequestHandler<GetProductByIdQuery, Product>
     {
-        private readonly IApplicationContext _context;
-        public GetProductByIdQueryHandler(IApplicationContext context) => _context = context;
+        private readonly IUnitOfWork<Product> _unitOfWork;
+        public GetProductByIdQueryHandler(IUnitOfWork<Product> unitOfWork) => _unitOfWork = unitOfWork;
         
         public async Task<Product> Handle(GetProductByIdQuery request, CancellationToken cancellationToken)
         {
-            var product = await _context.Products.Where(x => x.Id == request.Id).FirstOrDefaultAsync(cancellationToken: cancellationToken);
-            return product ?? new Product{Id = 0};
+            var product = await _unitOfWork.Repository.GetByIdAsync(request.Id);
+            return product ?? new Product {Id = 0};
         }
     }
 }

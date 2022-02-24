@@ -5,6 +5,5 @@ namespace CQRSExam.Context;
 
 public interface IApplicationContext
 {
-    DbSet<Product> Products { get; set; }
-    new Task<int> SaveChanges();
+    Task<int> SaveChanges();
 }
