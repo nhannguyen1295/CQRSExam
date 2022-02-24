@@ -15,7 +15,7 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
         _dbSet = context.Set<TEntity>();
     }
 
-    public virtual IEnumerable<TEntity> Get(Expression<Func<TEntity, bool>>? filter = null,
+    public virtual async Task<IEnumerable<TEntity>> GetAsync(Expression<Func<TEntity, bool>>? filter = null,
         Func<IQueryable<TEntity>, IOrderedQueryable<TEntity>>? orderBy = null, string includeProperties = "")
     {
         IQueryable<TEntity> query = _dbSet;
@@ -23,12 +23,12 @@ public class GenericRepository<TEntity> : IGenericRepository<TEntity> where TEnt
 
         query = includeProperties.Split(new[] {','}, StringSplitOptions.RemoveEmptyEntries).Aggregate(query, (current, property) => current.Include(property));
 
-        return orderBy != null ? orderBy(query).ToList() : query.ToList();
+        return orderBy != null ? await orderBy(query).ToListAsync() : await query.ToListAsync();
     }
 
-    public virtual TEntity? GetById(object id)
+    public virtual async Task<TEntity?> GetByIdAsync(object id)
     {
-        return _dbSet.Find(id);
+        return await _dbSet.FindAsync(id);
     }
 
     public virtual void Insert(TEntity entity) => _dbSet.Add(entity);

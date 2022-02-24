@@ -1,5 +1,6 @@
 ﻿using CQRSExam.Context;
 using CQRSExam.Models;
+using CQRSExam.UnitOfWork;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
 
@@ -9,13 +10,13 @@ public class GetAllProductsQuery:IRequest<IEnumerable<Product>>
 {
     public class GetAllProductQueryHandler : IRequestHandler<GetAllProductsQuery, IEnumerable<Product>>
     {
-        private readonly IApplicationContext _context;
-        public GetAllProductQueryHandler(IApplicationContext context) => _context = context;
+        private readonly IUnitOfWork<Product> _unitOfWork;
+        public GetAllProductQueryHandler(IUnitOfWork<Product> unitOfWork) => _unitOfWork = unitOfWork;
         
         public async Task<IEnumerable<Product>> Handle(GetAllProductsQuery request, CancellationToken cancellationToken)
         {
-            var productList = await _context.Products.ToListAsync(cancellationToken: cancellationToken);
-            return productList.AsReadOnly();
+            var productList = await _unitOfWork.Repository.GetAsync();
+            return productList.ToList().AsReadOnly();
         }
     }
 }
